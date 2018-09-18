@@ -2,8 +2,8 @@
  * timeline plus
  * https://yotamberk.github.io/timeline-plus
  *
- * @version 2.1.1
- * @date    2018-09-11
+ * @version 2.1.6
+ * @date    2018-09-15
  *
  */
 
@@ -7460,7 +7460,6 @@ var Group = function () {
       // if restacking, reposition visible items vertically
       if (restack) {
         var visibleSubgroups = {};
-        var subgroup = null;
 
         if (typeof this.itemSet.options.order === 'function') {
           (function () {
@@ -7504,9 +7503,10 @@ var Group = function () {
             });
 
             if (_this.doInnerStack && _this.itemSet.options.stackSubgroups) {
-              // Order the items within each subgroup
-              for (var _subgroup in _this.subgroups) {
-                visibleSubgroups[_subgroup] = _this.subgroups[_subgroup].items.slice().sort(function (a, b) {
+              // Filte visible items within each subgroup and order them
+              for (var subgroup in _this.subgroups) {
+                var visibleItemsInSubgroup = _this._updateItemsInRange(_this.orderedItems, _this.subgroups[subgroup].items, range);
+                visibleSubgroups[subgroup] = visibleItemsInSubgroup.slice().sort(function (a, b) {
                   return me.itemSet.options.order(a.data, b.data);
                 });
               }
@@ -7528,8 +7528,8 @@ var Group = function () {
 
           if (this.itemSet.options.stack) {
             if (this.doInnerStack && this.itemSet.options.stackSubgroups) {
-              for (var _subgroup2 in this.subgroups) {
-                visibleSubgroups[_subgroup2] = this.subgroups[_subgroup2].items;
+              for (var subgroup in this.subgroups) {
+                visibleSubgroups[subgroup] = this._updateItemsInRange(this.orderedItems, this.subgroups[subgroup].items, range);
               }
 
               stack.stackSubgroupsWithInnerStack(visibleSubgroups, margin, this.subgroups);
@@ -7868,17 +7868,16 @@ var Group = function () {
     value: function orderSubgroups() {
       if (this.subgroupOrderer !== undefined) {
         var sortArray = [];
-        var subgroup = void 0;
         if (typeof this.subgroupOrderer == 'string') {
-          for (var _subgroup3 in this.subgroups) {
-            sortArray.push({ subgroup: _subgroup3, sortField: this.subgroups[_subgroup3].items[0].data[this.subgroupOrderer] });
+          for (var subgroup in this.subgroups) {
+            sortArray.push({ subgroup: subgroup, sortField: this.subgroups[subgroup].items[0].data[this.subgroupOrderer] });
           }
           sortArray.sort(function (a, b) {
             return a.sortField - b.sortField;
           });
         } else if (typeof this.subgroupOrderer == 'function') {
-          for (var _subgroup4 in this.subgroups) {
-            sortArray.push(this.subgroups[_subgroup4].items[0].data);
+          for (var _subgroup in this.subgroups) {
+            sortArray.push(this.subgroups[_subgroup].items[0].data);
           }
           sortArray.sort(this.subgroupOrderer);
         }
@@ -15751,6 +15750,8 @@ function substack(items, margin, subgroup) {
 
   // Set the new height
   subgroup.height = subgroupHeight - subgroup.top + 0.5 * margin.item.vertical;
+  console.log(subgroup.height);
+  console.log(items);
 }
 
 /**
@@ -16862,6 +16863,9 @@ var BackgroundItem = function (_Item) {
       return {
         content: {
           width: this.dom.content.offsetWidth
+        },
+        box: {
+          height: this.dom.box.offsetHeight
         }
       };
     }
@@ -16870,8 +16874,8 @@ var BackgroundItem = function (_Item) {
     value: function _updateDomComponentsSizes(sizes) {
       // recalculate size
       this.props.content.width = sizes.content.width;
-      this.height = 0; // set height zero, so this item will be ignored when stacking items
-
+      // this.height = 0; // set height zero, so this item will be ignored when stacking items
+      this.height = sizes.box.height;
       this.dirty = false;
     }
   }, {

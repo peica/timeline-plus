@@ -120,15 +120,15 @@
         {id: 5, content: 'subgroup2_1', start: '2014-01-23T12:00:00', end: '2014-01-26T12:00:00',group:'bar', subgroup:'sg_3', subgroupOrder:2},
         {id: 6, content: 'subgroup2_2', start: '2014-01-26T12:00:01', end: '2014-01-29T12:00:00',group:'bar', subgroup:'sg_3', subgroupOrder:2},
 
-        {id: 'background', start: '2014-01-29', end: '2014-01-30', type: 'background', className: 'negative',group:'bar'},
-        {id: 'background_all', start: '2014-01-31', end: '2014-02-02', type: 'background', className: 'positive'},
+        {id: 'background', content: 'bar', start: '2014-01-29', end: '2014-01-30', type: 'background', className: 'negative',group:'bar'},
+        {id: 'background_all', content: 'all', start: '2014-01-31', end: '2014-02-02', type: 'background', className: 'positive'},
     ]);
 
     var container = document.getElementById('visualization');
     var stackingStatus = document.getElementById('stackingStatus');
     var stackSubgroupsStatus = document.getElementById('stackSubgroupsStatus');
     var options = {
-        // orientation:'top'
+        // orientation:'top',
         start: '2014-01-10',
         end: '2014-02-10',
         editable: true,

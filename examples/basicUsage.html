@@ -22,24 +22,36 @@
 <div id="visualization"></div>
 
 <script type="text/javascript">
-  // DOM element where the Timeline will be attached
-  var container = document.getElementById('visualization');
+    var items = new timeline.DataSet({
+        type: { start: 'ISODate', end: 'ISODate' }
+    });
+        var groups = new timeline.DataSet([{
+            id: 'all', content: 'bar', subgroupStack: { 'sg_2': true, 'sg_3': true }
+        }, {
+            id: 'second', content: 'foo', subgroupStack: { 'sg_2': true, 'sg_3': true } 
+        }]);
 
-  // Create a DataSet (allows two way data-binding)
-  var items = new timeline.DataSet([
-    {id: 1, content: 'item 1', start: '2014-04-20'},
-    {id: 2, content: 'item 2', start: '2014-04-14'},
-    {id: 3, content: 'item 3', start: '2014-04-18'},
-    {id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19'},
-    {id: 5, content: 'item 5', start: '2014-04-25'},
-    {id: 6, content: 'item 6', start: '2014-04-27', type: 'point'}
-  ]);
+    // add items to the DataSet
+    items.add([
+        {id: 0, content: 'subgroup1_1', start: '2014-01-23T12:00:00', end: '2014-01-26T12:00:00',group:'second', subgroup:'sg_3'},
+        {id: 1, content: 'subgroup2', start: '2014-01-26T12:00:01', end: '2014-01-29T12:00:00',group:'all', subgroup:'sg_2'},
+        {id: 3, content: 'subgroup1_2', start: '2014-01-23T12:00:00', end: '2014-01-26T12:00:00',group:'second', subgroup:'sg_3'},
+        {id: 4, content: 'subgroup1_3', start: '2014-01-26T12:00:01', end: '2014-01-29T12:00:00',group:'second', subgroup:'sg_3'},
+        {id: 5, content: 'sg_3', start: '2014-01-23T12:00:00', type:'background', end: '2014-01-29T12:00:00',group:'second', subgroup:'sg_3'},
+        {id: 6, content: 'sg_2', start: '2014-01-25T12:00:00', end: '2014-01-29T12:00:00', type:'background',group:'all', subgroup:'sg_2'},
 
-  // Configuration for the Timeline
-  var options = {};
+    ]);
 
-  // Create a Timeline
-  var timeline = new timeline.Timeline(container, items, options);
+    var container = document.getElementById('visualization');
+
+    var options = {
+        start: '2014-01-10',
+        end: '2014-02-10',
+        editable: true,
+        stack: true,
+        stackSubgroups: true
+    };
+    var aaaaaa = new timeline.Timeline(container, items, groups, options);
 </script>
 </body>
 </html>
