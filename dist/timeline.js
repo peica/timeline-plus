@@ -2,8 +2,8 @@
  * timeline plus
  * https://yotamberk.github.io/timeline-plus
  *
- * @version 2.2.2
- * @date    2018-10-06
+ * @version 2.2.3
+ * @date    2018-11-24
  *
  */
 
@@ -3860,13 +3860,6 @@ var DataSet = function () {
       }
       if (updatedIds.length) {
         var props = { items: updatedIds, oldData: oldData, data: updatedData };
-        // TODO: remove deprecated property 'data' some day
-        //Object.defineProperty(props, 'data', {
-        //  'get': (function() {
-        //    console.warn('Property data is deprecated. Use DataSet.get(ids) to retrieve the new data, use the oldData property on this object to get the old data');
-        //    return updatedData;
-        //  }).bind(this)
-        //});
         this._trigger('update', props, senderId);
       }
 
@@ -5242,10 +5235,6 @@ var DataView = function () {
 DataView.prototype.on = _DataSet2['default'].prototype.on;
 DataView.prototype.off = _DataSet2['default'].prototype.off;
 DataView.prototype._trigger = _DataSet2['default'].prototype._trigger;
-
-// TODO: make these functions deprecated (replaced with `on` and `off` since version 0.5)
-DataView.prototype.subscribe = DataView.prototype.on;
-DataView.prototype.unsubscribe = DataView.prototype.off;
 
 exports['default'] = DataView;
 
@@ -6844,7 +6833,7 @@ var CustomTime = function (_Component) {
     value: function setOptions(options) {
       if (options) {
         // copy all options that we know
-        util.selectiveExtend(['moment', 'locale', 'locales', 'id', 'title'], this.options, options);
+        util.selectiveExtend(['moment', 'locale', 'locales', 'id', 'title', 'rtl'], this.options, options);
       }
     }
 
@@ -6867,7 +6856,7 @@ var CustomTime = function (_Component) {
       var drag = document.createElement('div');
       drag.style.position = 'relative';
       drag.style.top = '0px';
-      drag.style.left = '-10px';
+      this.options.rtl ? drag.style.right = '-10px' : drag.style.left = '-10px';
       drag.style.height = '100%';
       drag.style.width = '20px';
 
@@ -6950,7 +6939,7 @@ var CustomTime = function (_Component) {
         title = title.call(this.customTime);
       }
 
-      this.bar.style.left = x + 'px';
+      this.options.rtl ? this.bar.style.right = x + 'px' : this.bar.style.left = x + 'px';
       this.bar.title = title;
 
       return false;
@@ -7029,7 +7018,9 @@ var CustomTime = function (_Component) {
     value: function _onDrag(event) {
       if (!this.eventParams.dragging) return;
 
-      var x = this.body.util.toScreen(this.eventParams.customTime) + event.deltaX;
+      var deltaX = this.options.rtl ? -1 * event.deltaX : event.deltaX;
+
+      var x = this.body.util.toScreen(this.eventParams.customTime) + deltaX;
       var time = this.body.util.toTime(x);
 
       this.setCustomTime(time);
@@ -10248,6 +10239,8 @@ var Range = function (_Component) {
         // In Mozilla, sign of delta is different than in IE.
         // Also, delta is multiple of 3.
         delta = -event.detail / 3;
+      } else if (event.deltaY) {
+        delta = -event.deltaY / 3;
       }
 
       // don't allow zoom when the according key is pressed and the zoomKey option or not zoomable but movable
@@ -10870,18 +10863,21 @@ var Core = function () {
         // Don't preventDefault if you can't scroll
         if (!this.options.verticalScroll && !this.options.horizontalScroll) return;
 
-        // Prevent default actions caused by mouse wheel
-        // (else the page and timeline both scroll)
-        event.preventDefault();
-
         if (this.options.verticalScroll && Math.abs(deltaY) >= Math.abs(deltaX)) {
           var current = this.props.scrollTop;
           var adjusted = current + deltaY;
 
           if (this.isActive()) {
-            this._setScrollTop(adjusted);
-            this._redraw();
-            this.emit('scroll', event);
+            var newScrollTop = this._setScrollTop(adjusted);
+
+            if (newScrollTop !== current) {
+              this._redraw();
+              this.emit('scroll', event);
+
+              // Prevent default actions caused by mouse wheel
+              // (else the page and timeline both scroll)
+              event.preventDefault();
+            }
           }
         } else if (this.options.horizontalScroll) {
           var delta = Math.abs(deltaX) >= Math.abs(deltaY) ? deltaX : deltaY;
@@ -10898,6 +10894,8 @@ var Core = function () {
             event: event
           };
           this.range.setRange(newStart, newEnd, options);
+
+          event.preventDefault();
         }
       }
 
@@ -10939,7 +10937,7 @@ var Core = function () {
         }
 
         // make sure your target is a timeline element
-        if (!event.target.className.indexOf("timeline") > -1) return;
+        if (!(event.target.className.indexOf("timeline") > -1)) return;
 
         // make sure only one item is added every time you're over the timeline
         if (itemAddedToTimeline) return;
@@ -11114,10 +11112,6 @@ var Core = function () {
               delete this.activator;
             }
           }
-        }
-
-        if ('showCustomTime' in options) {
-          throw new Error('Option `showCustomTime` is deprecated. Create a custom time bar via timeline.addCustomTime(time [, id])');
         }
 
         // enable/disable autoResize
@@ -11791,14 +11785,6 @@ var Core = function () {
       dom.center.style.left = '0';
       dom.left.style.left = '0';
       dom.right.style.left = '0';
-    }
-
-    // TODO: deprecated since version 1.1.0, remove some day
-
-  }, {
-    key: 'repaint',
-    value: function repaint() {
-      throw new Error('Function repaint is deprecated. Use redraw instead.');
     }
 
     /**
@@ -14147,9 +14133,6 @@ var ItemSet = function (_Component) {
               _this5.selection.push(id);
               item.select();
             }
-          } else if (type == 'rangeoverflow') {
-            // TODO: deprecated since version 2.1.0 (or 3.0.0?). cleanup some day
-            throw new TypeError('Item type "rangeoverflow" is deprecated. Use css styling instead: ' + '.timeline-item.timeline-range .timeline-item-content {overflow: visible;}');
           } else {
             throw new TypeError('Unknown item type "' + type + '"');
           }
