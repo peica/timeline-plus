@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Timeline | Basic demo</title>
+
+  <style type="text/css">
+    body, html {
+      font-family: sans-serif;
+    }
+  </style>
+
+  <script src="https://unpkg.com/timeline-plus@2.3.4/dist/timeline.js"></script>
+  <link href="https://unpkg.com/timeline-plus@2.3.4/dist/timeline.css" rel="stylesheet" type="text/css" />
+  <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
+
+</head>
+<body>
+
+<p>
+  A basic timeline. You can move and zoom the timeline, and select items.
+</p>
+
+<div id="visualization"></div>
+
+<script type="text/javascript">
+  // DOM element where the Timeline will be attached
+  var container = document.getElementById('visualization');
+
+  // Create a DataSet (allows two way data-binding)
+  var items = new timeline.DataSet([
+    {id: 1, content: 'item 1', start: '2014-04-20'},
+    {id: 2, content: 'item 2', start: '2014-04-14'},
+    {id: 3, content: 'item 3', start: '2014-04-18'},
+    {id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19'},
+    {id: 5, content: 'item 5', start: '2014-04-25'},
+    {id: 6, content: 'item 6', start: '2014-04-27', type: 'point'}
+  ]);
+
+  // Configuration for the Timeline
+  var options = {
+    template: function (item, element, data) {
+    var html = `<div>
+      ${data.content}
+      <button
+        data-tippy-sticky="true"
+        data-tippy-interactive="true"
+        data-tippy-content="<div>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique voluptate aut reprehenderit illo, corrupti odit saepe, vero incidunt excepturi veritatis, culpa laborum quo quisquam? Praesentium ex sequi voluptates cupiditate unde.
+          <a href='http://google.com'>link to google</a></div>"
+        data-tippy="Tooltip"
+        data-tippy-animation="scale"
+        data-tippy-duration="0"
+        data-tippy-arrow="true"
+        data-tippy-delay="[800, 200]"
+      >
+        Text
+      </button>
+      </div> `
+    return html;
+  }
+  };
+
+  // Create a Timeline
+  var timeline = new timeline.Timeline(container, items, options);
+</script>
+<div></div>
+</body>
+</html>
