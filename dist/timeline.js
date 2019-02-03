@@ -2,8 +2,8 @@
  * timeline plus
  * https://yotamberk.github.io/timeline-plus
  *
- * @version 2.3.4
- * @date    2019-01-26
+ * @version 2.3.2
+ * @date    2019-02-03
  *
  */
 
